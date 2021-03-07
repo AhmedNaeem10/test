@@ -8,7 +8,7 @@
     <h2>User not found!</h2>
     <h4>To register:</h4>
     <div class = "form">
-        <form method = "POST" action = "regUser" data-netlify="true">
+        <form method = "POST" action = "regUser" data-netlify="true" netlify @submit.prevent="sendForm" ref="formTag">
             Enter Full Name:
             <input type = "text" name = "name"></input></br>
             Enter Student ID(k12-3456):
