@@ -1,0 +1,82 @@
+<!DOCTYPE hml>
+<head>
+    <link rel="icon" href="D:\vsCodes\maps\map_marker.png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+   integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+   crossorigin=""/>
+  
+   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+   integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+   crossorigin=""></script>
+   <style>
+        #map{
+            height: 500px;
+            width: 500px;
+        }
+       </style>
+    <title>Tracking</title>
+    </head>
+<body>
+    <p>I am Map!</p>
+    <button onclick="checkMe()">Check Me</button>
+    <button onclick="checkVehicle()">Check Vehicle</button>
+    <div id = "map">
+    </div>
+    <script async>
+        /*
+            my location: 
+            lat: 24.945078799999997
+            lng: 67.10416099999999
+         */
+        var mlat, mlng, name, id;
+        const queryString = window.location.search;
+        mlat = new URLSearchParams(queryString).get('lat');
+        mlng = new URLSearchParams(queryString).get('lng');
+        name = new URLSearchParams(queryString).get('name');
+        id = new URLSearchParams(queryString).get('id');
+        //mlat, mlng will be the points received from the server by using the fetch function
+        var points = [];
+        var lat, lng;
+        const mymap = L.map('map').setView([mlat, mlng], 5);
+        var car = L.marker([0, 0]).addTo(mymap);
+        var user = L.marker([mlat, mlng]).addTo(mymap);
+        const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const tiles = L.tileLayer(tileUrl, { attribution });
+        var locate_options = {
+            watch: true,
+            setView: true,
+            maxZoom: 5,
+            timeout: 0,
+            maximumAge: 0,
+            enableHighAccuracy: false
+        };
+        tiles.addTo(mymap);
+        mymap.locate(locate_options).on('locationfound', (e) => {
+            if (!car) {
+                lat = e.latitude;
+                lng = e.longitude;
+                points.push([e.latitude, e.longitude]);
+                car = leaflet.marker([e.latitude, e.longitude]).addTo(mymap);
+            } else {
+                points.push([e.latitude, e.longitude]);
+                car.setLatLng([e.latitude, e.longitude]);
+                lat = e.latitude;
+                lng = e.longitude;
+                console.log(mymap.distance([mlat, mlng], [e.latitude, e.longitude]));
+                var polyline = L.polyline(points, {color: ' blue'}).addTo(mymap);
+                mymap.fitBounds(polyline.getBounds());
+            }
+        });
+       // mymap.panTo([45,51, -122.68]);
+        function checkMe(){
+            // lat = mymap._lastCenter.lat;
+            // lng = mymap._lastCenter.lng;
+            mymap.panTo([mlat, mlng]);
+        }
+        function checkVehicle(){
+            mymap.panTo([lat, lng]);
+        }
+    </script>
+</body>
+</html>
